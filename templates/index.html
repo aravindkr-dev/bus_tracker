@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiple Device GPS Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background-color: #003366;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+        }
+        .container {
+            display: flex;
+            flex: 1;
+        }
+        #map {
+            flex: 3;
+            height: 100%;
+            z-index: 1;
+        }
+        .sidebar {
+            flex: 1;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            min-width: 300px;
+            max-width: 400px;
+            padding: 20px;
+        }
+        .device-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+            padding: 15px;
+            position: relative;
+            border-left: 4px solid #003366;
+        }
+        .device-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .device-info {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        .device-location {
+            margin-top: 10px;
+        }
+        .device-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 8px 12px;
+            background-color: #003366;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #002244;
+        }
+        button.secondary {
+            background-color: #6c757d;
+        }
+        button.danger {
+            background-color: #dc3545;
+        }
+        .footer {
+            padding: 10px 20px;
+            background-color: #f1f1f1;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        .form-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .battery-indicator {
+            display: inline-block;
+            width: 30px;
+            height: 15px;
+            border: 1px solid #333;
+            position: relative;
+            margin-right: 5px;
+        }
+        .battery-level {
+            height: 100%;
+            background-color: #4caf50;
+        }
+        .battery-level.low {
+            background-color: #f44336;
+        }
+        .battery-level.medium {
+            background-color: #ff9800;
+        }
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            .sidebar {
+                min-width: 100%;
+                max-width: 100%;
+            }
+            #map {
+                height: 50vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Multiple Device GPS Tracker</h1>
+        <div id="clock"></div>
+    </div>
+
+    <div class="container">
+        <div id="map"></div>
+
+        <div class="sidebar">
+            <div class="form-container">
+                <h3>Register New Device</h3>
+                <div class="form-group">
+                    <label for="deviceName">Device Name:</label>
+                    <input type="text" id="deviceName" placeholder="Enter device name">
+                </div>
+                <button id="registerDeviceBtn">Register Device</button>
+                <div id="registerStatus" class="status" style="display: none;"></div>
+            </div>
+
+            <h3>Tracked Devices</h3>
+            <div id="devicesList">
+                <!-- Devices will be loaded here -->
+                <div class="device-card">
+                    <div class="device-title">Loading devices...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2025 Multiple Device GPS Tracker - Powered by OpenStreetMap
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+    <script>
+        // Global variables
+        let map;
+        let markers = {};
+        let updateInterval;
+
+        // Initialize the application
+        function init() {
+            // Initialize the map with OpenStreetMap
+            map = L.map('map').setView([0, 0], 2);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Update the clock
+            updateClock();
+            setInterval(updateClock, 1000);
+
+            // Load devices
+            loadDevices();
+
+            // Start updating locations
+            updateLocations();
+            updateInterval = setInterval(updateLocations, 30000); // Update every 30 seconds
+
+            // Set up event listeners
+            document.getElementById('registerDeviceBtn').addEventListener('click', registerDevice);
+        }
+
+        // Update the clock display
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleTimeString();
+        }
+
+        // Load all registered devices
+        function loadDevices() {
+            fetch('/api/devices')
+            .then(response => response.json())
+            .then(devices => {
+                const devicesList = document.getElementById('devicesList');
+                devicesList.innerHTML = '';
+
+                if (devices.length === 0) {
+                    devicesList.innerHTML = '<div class="device-card">No devices registered yet.</div>';
+                    return;
+                }
+
+                devices.forEach(device => {
+                    const deviceCard = document.createElement('div');
+                    deviceCard.className = 'device-card';
+                    deviceCard.id = `device-${device.device_id}`;
+                    deviceCard.innerHTML = `
+                        <div class="device-title">${device.name}</div>
+                        <div class="device-info">ID: ${device.device_id}</div>
+                        <div class="device-location">
+                            <p>Fetching location...</p>
+                        </div>
+                        <div class="device-actions">
+                            <button class="secondary" onclick="centerOnDevice('${device.device_id}')">Center on Map</button>
+                            <button class="danger" onclick="deleteDevice(${device.id}, '${device.name}')">Delete</button>
+                        </div>
+                    `;
+                    devicesList.appendChild(deviceCard);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading devices:', error);
+                document.getElementById('devicesList').innerHTML =
+                    '<div class="device-card">Error loading devices. Please try again later.</div>';
+            });
+        }
+
+        // Update locations for all devices
+        function updateLocations() {
+            fetch('/api/latest-locations')
+            .then(response => response.json())
+            .then(locations => {
+                locations.forEach(location => {
+                    updateDeviceCard(location);
+                    updateDeviceMarker(location);
+                });
+
+                // If this is the first location, fit the map to show all markers
+                if (Object.keys(markers).length > 0 && map.getZoom() === 2) {
+                    const markerGroup = L.featureGroup(Object.values(markers));
+                    map.fitBounds(markerGroup.getBounds(), { padding: [50, 50] });
+                }
+            })
+            .catch(error => {
+                console.error('Error updating locations:', error);
+            });
+        }
+
+        // Update a device card with location information
+        function updateDeviceCard(location) {
+            const deviceCard = document.getElementById(`device-${location.device_id}`);
+            if (!deviceCard) return;
+
+            const locationDiv = deviceCard.querySelector('.device-location');
+
+            // Calculate how long ago the location was updated
+            const locationTime = new Date(location.timestamp);
+            const now = new Date();
+            const minutesAgo = Math.floor((now - locationTime) / 60000);
+            const timeDisplay = minutesAgo < 1 ? 'Just now' :
+                               minutesAgo === 1 ? '1 minute ago' :
+                               `${minutesAgo} minutes ago`;
+
+            // Format battery indicator if available
+            let batteryHtml = '';
+            if (location.battery !== null && location.battery !== undefined) {
+                const batteryLevel = location.battery;
+                const batteryClass = batteryLevel < 20 ? 'low' :
+                                   batteryLevel < 50 ? 'medium' : '';
+
+                batteryHtml = `
+                    <div class="battery-indicator">
+                        <div class="battery-level ${batteryClass}" style="width: ${batteryLevel}%"></div>
+                    </div>
+                    ${batteryLevel}%
+                `;
+            }
+
+            // Format speed if available
+            let speedHtml = '';
+            if (location.speed !== null && location.speed !== undefined) {
+                const speedKmh = Math.round(location.speed * 3.6); // Convert m/s to km/h
+                speedHtml = `<div>Speed: ${speedKmh} km/h</div>`;
+            }
+
+            locationDiv.innerHTML = `
+                <div>Address: ${location.address}</div>
+                <div>Coordinates: ${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}</div>
+                ${speedHtml}
+                <div>
+                    Last update: ${timeDisplay}
+                    ${batteryHtml}
+                </div>
+            `;
+        }
+
+        // Update or create a device marker on the map
+        function updateDeviceMarker(location) {
+            const deviceId = location.device_id;
+            const position = [location.latitude, location.longitude];
+
+            // Create or update marker
+            if (markers[deviceId]) {
+                markers[deviceId].setLatLng(position);
+            } else {
+                const marker = L.marker(position).addTo(map);
+                marker.bindPopup(`
+                    <strong>${location.device_name}</strong><br>
+                    ${location.address}<br>
+                    Last update: ${new Date(location.timestamp).toLocaleTimeString()}
+                `);
+                markers[deviceId] = marker;
+            }
+
+            // Update popup content
+            markers[deviceId].getPopup().setContent(`
+                <strong>${location.device_name}</strong><br>
+                ${location.address}<br>
+                Last update: ${new Date(location.timestamp).toLocaleTimeString()}
+            `);
+        }
+
+        // Register a new device
+        function registerDevice() {
+            const deviceName = document.getElementById('deviceName').value.trim();
+
+            if (!deviceName) {
+                showRegisterStatus('Please enter a device name', 'error');
+                return;
+            }
+
+            fetch('/api/devices', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name: deviceName })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showRegisterStatus(data.error, 'error');
+                } else {
+                    showRegisterStatus(`Device "${deviceName}" registered successfully! Use the following credentials in your mobile app:
+                    <br>Device ID: ${data.device_id}
+                    <br>API Key: ${data.api_key}`, 'success');
+
+                    document.getElementById('deviceName').value = '';
+                    loadDevices();
+                }
+            })
+            .catch(error => {
+                console.error('Error registering device:', error);
+                showRegisterStatus('Error registering device. Please try again.', 'error');
+            });
+        }
+
+        // Delete a device
+        function deleteDevice(deviceId, deviceName) {
+            if (confirm(`Are you sure you want to delete device "${deviceName}"? All location data will be permanently removed.`)) {
+                fetch(`/api/devices/${deviceId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        showRegisterStatus(`Device "${deviceName}" deleted successfully.`, 'success');
+                        loadDevices();
+
+                        // Remove marker from map
+                        if (markers[deviceId]) {
+                            map.removeLayer(markers[deviceId]);
+                            delete markers[deviceId];
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting device:', error);
+                    showRegisterStatus('Error deleting device. Please try again.', 'error');
+                });
+            }
+        }
+
+        // Center the map on a specific device
+        function centerOnDevice(deviceId) {
+            if (markers[deviceId]) {
+                map.setView(markers[deviceId].getLatLng(), 16);
+                markers[deviceId].openPopup();
+            }
+        }
+
+        // Show registration status message
+        function showRegisterStatus(message, type) {
+            const statusElement = document.getElementById('registerStatus');
+            statusElement.innerHTML = message;
+            statusElement.className = `status ${type}`;
+            statusElement.style.display = 'block';
+
+            // Hide message after 10 seconds if it's a success message
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusElement.style.display = 'none';
+                }, 10000);
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+2025-04-06 20:58:43,884 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.29.188:5001
+2025-04-06 20:58:43,884 - INFO - [33mPress CTRL+C to quit[0m
+2025-04-06 20:58:43,894 - INFO -  * Restarting with watchdog (windowsapi)
+2025-04-06 20:58:44,913 - WARNING -  * Debugger is active!
+2025-04-06 20:58:44,916 - INFO -  * Debugger PIN: 109-877-132
+2025-04-06 21:00:06,183 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5001
+ * Running on http://192.168.29.188:5001
+2025-04-06 21:00:06,190 - INFO - [33mPress CTRL+C to quit[0m
+2025-04-06 21:00:06,202 - INFO -  * Restarting with watchdog (windowsapi)
+2025-04-06 21:00:07,019 - WARNING -  * Debugger is active!
+2025-04-06 21:00:07,022 - INFO -  * Debugger PIN: 109-877-132
+2025-04-06 21:00:29,176 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.29.188:5000
+2025-04-06 21:00:29,177 - INFO - [33mPress CTRL+C to quit[0m
+2025-04-06 21:00:29,188 - INFO -  * Restarting with watchdog (windowsapi)
+2025-04-06 21:00:29,982 - WARNING -  * Debugger is active!
+2025-04-06 21:00:29,984 - INFO -  * Debugger PIN: 109-877-132
+2025-04-06 21:00:30,789 - INFO - 127.0.0.1 - - [06/Apr/2025 21:00:30] "[33mGET /api/latest-locations HTTP/1.1[0m" 404 -
+2025-04-06 21:01:00,780 - INFO - 127.0.0.1 - - [06/Apr/2025 21:01:00] "[33mGET /api/latest-locations HTTP/1.1[0m" 404 -
+2025-04-06 21:01:30,771 - INFO - 127.0.0.1 - - [06/Apr/2025 21:01:30] "[33mGET /api/latest-locations HTTP/1.1[0m" 404 -
+2025-04-06 21:02:09,788 - INFO - 127.0.0.1 - - [06/Apr/2025 21:02:09] "[33mGET /api/latest-locations HTTP/1.1[0m" 404 -
+2025-04-06 21:03:09,795 - INFO - 127.0.0.1 - - [06/Apr/2025 21:03:09] "[33mGET /api/latest-locations HTTP/1.1[0m" 404 -

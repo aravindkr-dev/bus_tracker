@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Location Sender</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <h2>📡 Sending your location every 5 seconds...</h2>
+  <input type="text" id = 'user' value = {{user_id}}>
+  <script>
+    userid = document.getElementById('user').value;
+    const userId = localStorage.getItem('user_id') || 'user_' + Math.floor(Math.random() * 10000);
+    localStorage.setItem('user_id', userid);
+
+    function sendLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+          fetch('/location', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              user_id: userId,
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude
+            })
+          });
+        });
+      }
+    }
+
+    sendLocation();
+    setInterval(sendLocation, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+    "server_url": "http://your-server-url.com",
+    "device_id": "",
+    "api_key": "",
+    "update_interval": 30,
+    "min_distance": 10,
+    "battery_monitor": true
+}

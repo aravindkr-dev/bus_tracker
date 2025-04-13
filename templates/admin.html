@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Map</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <style>
+    #map { height: 90vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>Live User Locations</h2>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([0, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = {};
+
+    function updateMap() {
+      fetch('/locations')
+        .then(res => res.json())
+        .then(data => {
+          console.log('Received locations:', data);
+          for (const user in data) {
+            const trail = data[user].trail;
+            if (!trail || trail.length === 0) continue;
+
+            const last = trail[trail.length - 1];
+            const latlng = [last.lat, last.lon];
+            const text = `${user}<br>${last.timestamp}`;
+
+            if (!markers[user]) {
+              markers[user] = L.marker(latlng).addTo(map).bindPopup(text);
+            } else {
+              markers[user].setLatLng(latlng).setPopupContent(text);
+            }
+          }
+        })
+        .catch(err => console.error('Fetch error:', err));
+    }
+
+    updateMap();
+    setInterval(updateMap, 5000);
+  </script>
+</body>
+</html>
