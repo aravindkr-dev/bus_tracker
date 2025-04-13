@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bus Tracking Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <script>
+        const userid = "{{user_id}}";
+        localStorage.setItem('user_id', userid);
+    </script>
+    <style>
+        :root {
+            --primary-color: #ffc51c;
+            --text-dark: #212121;
+            --text-light: #fff;
+            --bg-light: #fff;
+            --bg-secondary: #f7f7f7;
+            --shadow-light: 0 2px 10px rgba(0, 0, 0, 0.05);
+            --shadow-medium: 0 4px 8px rgba(0, 0, 0, 0.1);
+            --border-radius-sm: 16px;
+            --border-radius-md: 24px;
+            --border-radius-lg: 30px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        html {
+            height: -webkit-fill-available;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 500px;
+            height: 100vh;
+            height: -webkit-fill-available;
+            margin: 0 auto;
+            background-color: var(--bg-light);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-bottom: 80px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .profile-header {
+            background-color: var(--primary-color);
+            border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
+            padding: 24px 20px;
+            padding-bottom: 100px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .profile-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            color: var(--text-light);
+            max-width: 70%;
+        }
+
+        .user-name {
+            font-size: clamp(20px, 5vw, 28px);
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            line-height: 1.2;
+            word-break: break-word;
+        }
+
+        .verify-text {
+            font-size: clamp(16px, 4vw, 18px);
+            font-weight: 600;
+        }
+
+        .profile-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--bg-light);
+            background-image: url('https://th.bing.com/th/id/OIP.wVdv3Lc-eg0g7JTNh8nTNQHaJ2?w=526&h=700&rs=1&pid=ImgDetMain');
+            background-size: cover;
+            background-position: center;
+            box-shadow: var(--shadow-medium);
+            border: 2px solid var(--text-light);
+            flex-shrink: 0;
+        }
+
+        .qr-container {
+            position: relative;
+            z-index: 2;
+            margin-top: -80px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .profile-circle {
+            width: clamp(140px, 40vw, 180px);
+            height: clamp(140px, 40vw, 180px);
+            background-color: var(--bg-light);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: var(--shadow-medium);
+            border: 2px solid rgba(255, 197, 28, 0.3);
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .profile-circle:active {
+            transform: scale(0.98);
+        }
+
+        .qr-code {
+            width: 85%;
+            height: 85%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffffff' d='M0 0h29v29H0z'/%3E%3Cpath stroke='%23000000' d='M4 4.5h7m1 0h1m3 0h1m1 0h7M4 5.5h1m5 0h1m1 0h1m1 0h1m1 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h1m1 0h1m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h5M4 12.5h1m2 0h2m1 0h1m1 0h1m1 0h1m3 0h3m1 0h1M5 13.5h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h3M4 14.5h1m1 0h1m1 0h5m1 0h1m1 0h1m1 0h1m2 0h1M4 15.5h1m1 0h1m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m1 0h2M4 16.5h1m1 0h2m2 0h1m1 0h1m1 0h3m4 0h1M5 17.5h1m1 0h1m1 0h1m3 0h1m1 0h1m3 0h3M4 18.5h7m1 0h1m1 0h1m1 0h1m1 0h7M4 19.5h1m5 0h1m1 0h1m2 0h1m1 0h1m5 0h1M4 20.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h3m1 0h1M4 21.5h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1M4 22.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1M4 23.5h1m5 0h1m2 0h3m1 0h1m5 0h1M4 24.5h7m1 0h1m2 0h3m1 0h7'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .bus-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 0 20px;
+            align-items: center;
+        }
+
+        .bus-number,
+        .bus-destination {
+            font-size: clamp(16px, 4vw, 18px);
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .bus-icon {
+            color: var(--primary-color);
+        }
+
+        .route-section {
+            padding: 15px 20px;
+            margin-top: 10px;
+            transform: translateY(160px);
+        }
+
+        .route-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+        }
+
+        .route-map-horizontal {
+            position: relative;
+            width: 100%;
+            height: 100px;
+            margin: 40px 0 10px 0;
+        }
+
+        .route-line-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .route-line-turn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 8px;
+            height: 50px;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .route-line-bottom {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            right: 0;
+            height: 8px;
+            background-color: var(--primary-color);
+            border-radius: 4px;
+            transform: translateY(-5px);
+        }
+
+        .route-stop-label {
+            position: absolute;
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: center;
+            transform: translateX(-50%);
+            top: -30px;
+            line-height: 1.2;
+        }
+
+        .route-stop-label.bottom {
+            top: 15px;
+        }
+
+        .lowercase {
+            text-transform: lowercase;
+        }
+
+        .tracking-section {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin-top: 10px;
+            transform: translateY(-230px);
+        }
+
+        .tracking-card {
+            background-color: var(--bg-secondary);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-light);
+        }
+
+        .tracking-title {
+            font-size: clamp(18px, 5vw, 22px);
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-dark);
+        }
+
+        .tracking-icon {
+            color: var(--primary-color);
+        }
+
+        .tracking-button {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            font-size: clamp(18px, 5vw, 22px);
+            font-weight: 600;
+            text-align: center;
+            padding: 14px;
+            border-radius: var(--border-radius-sm);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tracking-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .tracking-button::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .tracking-button:active::after {
+            animation: ripple 0.6s ease-out;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        .loader {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-bottom-color: transparent;
+            border-radius: 50%;
+            margin: 0 auto;
+            animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .tracking-status {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--bg-light);
+            border-radius: var(--border-radius-sm);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: var(--shadow-light);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .status-info {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .status-location {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            max-width: 500px;
+            height: 70px;
+            background-color: var(--primary-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            padding: 0 10px;
+        }
+
+        .nav-item {
+            color: var(--text-light);
+            font-size: 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .nav-item::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background-color: var(--text-light);
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item.active::after {
+            opacity: 1;
+        }
+
+        .nav-label {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 10px;
+            font-weight: 500;
+            color: var(--text-light);
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item.active .nav-label {
+            opacity: 1;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 10px 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Pulse animation for QR code */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 197, 28, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 197, 28, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 197, 28, 0);
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* QR Code Modal */
+        .qr-modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .qr-modal {
+            background-color: var(--bg-light);
+            padding: 20px;
+            border-radius: var(--border-radius-md);
+            width: 90%;
+            max-width: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .qr-modal-backdrop.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .qr-modal-backdrop.active .qr-modal {
+            transform: scale(1);
+        }
+
+        .enlarged-qr {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 29 29' shape-rendering='crispEdges'%3E%3Cpath fill='%23ffffff' d='M0 0h29v29H0z'/%3E%3Cpath stroke='%23000000' d='M4 4.5h7m1 0h1m3 0h1m1 0h7M4 5.5h1m5 0h1m1 0h1m1 0h1m1 0h1m5 0h1M4 6.5h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h3m1 0h1M4 7.5h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h3m1 0h1M4 8.5h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h3m1 0h1M4 9.5h1m5 0h1m1 0h1m1 0h1m1 0h1m5 0h1M4 10.5h7m1 0h1m1 0h1m1 0h1m1 0h7M12 11.5h5M4 12.5h1m2 0h2m1 0h1m1 0h1m1 0h1m3 0h3m1 0h1M5 13.5h1m1 0h3m1 0h1m1 0h1m1 0h3m2 0h3M4 14.5h1m1 0h1m1 0h5m1 0h1m1 0h1m1 0h1m2 0h1M4 15.5h1m1 0h1m1 0h1m1 0h1m1 0h4m1 0h1m1 0h1m1 0h2M4 16.5h1m1 0h2m2 0h1m1 0h1m1 0h3m4 0h1M5 17.5h1m1 0h1m1 0h1m3 0h1m1 0h1m3 0h3M4 18.5h7m1 0h1m1 0h1m1 0h1m1 0h7M4 19.5h1m5 0h1m1 0h1m2 0h1m1 0h1m5 0h1M4 20.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h3m1 0h1M4 21.5h1m1 0h3m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1M4 22.5h1m1 0h3m1 0h1m1 0h2m1 0h1m1 0h1m1 0h3m1 0h1M4 23.5h1m5 0h1m2 0h3m1 0h1m5 0h1M4 24.5h7m1 0h1m2 0h3m1 0h7'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .qr-modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .qr-modal-close {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: var(--text-light);
+            border: none;
+            border-radius: var(--border-radius-sm);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        /* For smaller phones */
+        @media (max-width: 380px) {
+            .profile-header {
+                padding-bottom: 90px;
+            }
+
+            .qr-container {
+                margin-top: -70px;
+            }
+
+            .bottom-nav {
+                height: 60px;
+            }
+
+            .nav-item {
+                font-size: 20px;
+                padding: 10px;
+            }
+        }
+
+        /* For landscape orientation */
+        @media (orientation: landscape) and (max-height: 500px) {
+            .profile-header {
+                padding-bottom: 80px;
+            }
+
+            .qr-container {
+                margin-top: -60px;
+            }
+
+            .profile-circle {
+                width: 120px;
+                height: 120px;
+            }
+
+            .main-content {
+                padding-bottom: 60px;
+            }
+
+            .bottom-nav {
+                height: 50px;
+            }
+
+            .tracking-section {
+                padding: 10px 20px;
+            }
+        }
+
+        /* For larger screens */
+        @media (min-height: 700px) {
+            .profile-header {
+                padding-bottom: 120px;
+            }
+
+            .qr-container {
+                margin-top: -90px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="main-content">
+            <div class="profile-header">
+                <div class="profile-section">
+                    <div class="user-info">
+                        <h1 class="user-name" id="userName">{{user_id}}</h1>
+                        <h2 class="verify-text">Verify Yourself!</h2>
+                    </div>
+                    <div class="profile-avatar"></div>
+                </div>
+            </div>
+
+            <div class="qr-container">
+                <div class="profile-circle pulse" id="qrCircle">
+                    <div class="qr-code" id="qrCode"></div>
+                </div>
+            </div>
+
+            <div class="bus-info">
+                <h2 class="bus-number">
+                    <i class="ti ti-bus bus-icon"></i>
+                    BUS NO:67
+                </h2>
+                <h2 class="bus-destination">
+                    <i class="ti ti-map-pin bus-icon"></i>
+                    MUDICHUR
+                </h2>
+            </div>
+
+            <!-- Route Section with Visual Map -->
+            <!-- Route Section with Visual Map -->
+            <!-- Route Section with Horizontal Map -->
+            <!-- Route Section with Horizontal Map -->
+            <div class="route-section">
+                <h2 class="route-title">Route 67:</h2>
+                <div class="route-map-horizontal">
+                    <!-- Top horizontal line with stops -->
+                    <div class="route-line-top">
+                        <!-- Stop names directly on the line -->
+                        <span class="route-stop-label" style="left: 10%;">MUDICHUR</span>
+                        <span class="route-stop-label" style="left: 30%;">MANIVAKAM</span>
+                        <span class="route-stop-label" style="left: 50%;">BHARATHI<br>NAGAR</span>
+                        <span class="route-stop-label" style="left: 70%;">KRISHNA<br>NAGAR</span>
+                        <span class="route-stop-label" style="left: 90%;">TAMBARAM</span>
+                    </div>
+
+                    <!-- Right vertical turn -->
+                    <div class="route-line-turn"></div>
+
+                    <!-- Bottom horizontal line with stops -->
+                    <div class="route-line-bottom">
+                        <!-- Stop names directly on the line -->
+                        <span class="route-stop-label bottom" style="left: 10%;">RAMAPURAM</span>
+                        <span class="route-stop-label bottom" style="left: 45%;">CHROMPET</span>
+                        <span class="route-stop-label bottom" style="left: 80%;">TAMBARAM<br>SANITORIUM</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tracking-section">
+                <div class="tracking-card">
+                    <h2 class="tracking-title">
+                        <i class="ti ti-map-pin tracking-icon"></i>
+                        Track Your Bus
+                    </h2>
+                    <button class="tracking-button" id="trackButton">Click Here</button>
+                    <div class="loader" id="trackLoader"></div>
+                    <div class="tracking-status" id="trackingStatus">
+                        <div class="status-info">
+                            <span>Your bus is currently at <span class="status-location">Avadi</span></span>
+                            <span>Estimated arrival: <strong>15 minutes</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <button class="nav-item" data-label="Home">
+                <i class="ti ti-home"></i>
+                <span class="nav-label">Home</span>
+            </button>
+            <button class="nav-item" data-label="Track" onclick = "location.href = '/view_bus'">
+                <i class="ti ti-map-pin"></i>
+                <span class="nav-label">Track</span>
+            </button>
+            <button class="nav-item" data-label="Menu">
+                <i class="ti ti-menu-2"></i>
+                <span class="nav-label">Menu</span>
+            </button>
+            <button class="nav-item" data-label="Profile">
+                <i class="ti ti-user"></i>
+                <span class="nav-label">Profile</span>
+            </button>
+        </nav>
+    </div>
+
+    <div class="toast" id="toast" style="opacity: 0;"></div>
+
+    <!-- QR Code Modal -->
+    <div class="qr-modal-backdrop" id="qrModalBackdrop">
+        <div class="qr-modal">
+            <h3 class="qr-modal-title">Student QR Code</h3>
+            <div class="enlarged-qr"></div>
+            <button class="qr-modal-close" id="qrModalClose">Close</button>
+        </div>
+    </div>
+     <input type="text" id = 'user' value = {{user_id}}>
+
+    <script>
+        const userid = "{{user_id}}";
+        localStorage.setItem('user_id', userid);
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get query parameters from URL if they exist
+            const urlParams = new URLSearchParams(window.location.search);
+            const username = urlParams.get('username');
+
+            // If username exists in query params, update the profile name
+            if (username) {
+                document.getElementById('userName').textContent = username;
+            }
+
+            // Custom toast function instead of using localStorage
+            function showToast(message, duration = 2000) {
+                const toast = document.getElementById('toast');
+                toast.textContent = message;
+                toast.style.opacity = "1";
+
+                setTimeout(() => {
+                    toast.style.opacity = "0";
+                }, duration);
+            }
+
+            // QR code modal elements
+            const qrCircle = document.getElementById('qrCircle');
+            const qrModalBackdrop = document.getElementById('qrModalBackdrop');
+            const qrModalClose = document.getElementById('qrModalClose');
+
+            // Open QR code modal when QR circle is clicked
+            qrCircle.addEventListener('click', function() {
+                qrCircle.classList.remove('pulse');
+                qrModalBackdrop.classList.add('active');
+
+                // Vibrate if supported
+                if (navigator && navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+
+            // Close QR code modal when close button is clicked
+            qrModalClose.addEventListener('click', function() {
+                qrModalBackdrop.classList.remove('active');
+
+                // Re-add pulse animation after modal is closed
+                setTimeout(() => {
+                    qrCircle.classList.add('pulse');
+                }, 500);
+
+                // Vibrate if supported
+                if (navigator && navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            });
+
+            // Close modal when clicking outside of it
+            qrModalBackdrop.addEventListener('click', function(e) {
+                if (e.target === qrModalBackdrop) {
+                    qrModalBackdrop.classList.remove('active');
+
+                    // Re-add pulse animation after modal is closed
+                    setTimeout(() => {
+                        qrCircle.classList.add('pulse');
+                    }, 500);
+                }
+            });
+
+            // Handle tracking button click - placeholder only
+            const trackButton = document.getElementById('trackButton');
+
+            trackButton.addEventListener('click', function() {
+                showToast('Backend functionality will be added later', 2000);
+
+                // Vibrate if supported
+                if (navigator && navigator.vibrate) {
+                    navigator.vibrate(100);
+                }
+            });
+
+            // Add active state and labels to bottom nav items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                const label = item.getAttribute('data-label');
+
+                item.addEventListener('click', function() {
+                    // Remove active class from all items
+                    navItems.forEach(nav => nav.classList.remove('active'));
+
+                    // Add active class to clicked item
+                    this.classList.add('active');
+
+                    // Vibrate on click if supported
+                    if (navigator && navigator.vibrate) {
+                        navigator.vibrate(50);
+                    }
+
+                    showToast(label + ' Selected', 1000);
+                });
+            });
+
+            // Set the profile icon as active by default
+            navItems[3].classList.add('active');
+
+            // Add support for swipe down to refresh
+            let touchStartY = 0;
+            let touchEndY = 0;
+
+            document.addEventListener('touchstart', function(e) {
+                touchStartY = e.touches[0].clientY;
+            }, false);
+
+            document.addEventListener('touchend', function(e) {
+                touchEndY = e.changedTouches[0].clientY;
+                handleSwipe();
+            }, false);
+
+            function handleSwipe() {
+                const swipeDistance = touchEndY - touchStartY;
+                const mainContent = document.querySelector('.main-content');
+
+                if (swipeDistance > 100 && mainContent.scrollTop === 0) {
+                    // Show refreshing toast
