@@ -1,8 +1,8 @@
-from flask import Flask, request, render_template, jsonify, session, redirect , url_for
+from flask import Flask, request, render_template, jsonify, session, redirect , url_for , flash
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from sympy.codegen.ast import continue_
-
+from flask_migrate import Migrate
+from werkzeug.security import generate_password_hash
 
 app = Flask('__name__'  , template_folder='templates')
 user_locations = {}
@@ -15,22 +15,40 @@ db = SQLAlchemy(app)
 
 app.secret_key = 'secret'
 
-class Mytable(db.Model):
+class User(db.Model):
     __tablename__ = 'user_cred'
 
     id = db.Column(db.Integer , primary_key = True)
     name = db.Column(db.String(30) , nullable = False , unique = True)
     passw = db.Column(db.String(60) , nullable = False)
     role = db.Column(db.String(30) , nullable = False)
+    transportid = db.Column(db.String(100) , nullable = True)
 
     def to_dict(self):
         return {
             'id':self.id,
             'name':self.name,
             'passw':self.passw,
-            'role':self.role
+            'role':self.role,
+            'transportid':self.transportid
         }
 
+
+
+class Bus(db.Model):
+    __tablename__ = 'bus_details'
+    id = db.Column(db.Integer , primary_key = True)
+    bus_number = db.Column(db.String(10) , unique = True , nullable = False)
+    starting = db.Column(db.String(300))#coordinates
+
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'bus_number' : self.bus_number,
+            'starting' : self.starting
+        }
+
+migrate = Migrate(app, db)
 
 def verify():
     if 'username' not in session:
@@ -40,27 +58,51 @@ def verify():
 
 
 
-@app.route('/')
-def dashboard():
-    v = verify()
-    if v:
-        return render_template('dashboard.html' , user_id = session.get('username'))
+@app.route('/student')
+def student_dashboard():
+    if 'username' in session and 'role' in session and session.get('role') == 'student':
+        return render_template('student/dashboard.html' , user_id = session.get('username'))
+    return redirect(url_for('login'))
+
+
+@app.route('/driver')
+def driver_dashboard():
+    if 'username' in session and 'role' in session and session.get('role') == 'driver':
+        flash('Login Successful', 'success')
+        return render_template('driver/dashboard.html' , username = User.name)
     else:
-        return redirect(url_for('login'))
+        flash('You are not a driver', 'error')
+        return redirect('/login')
 
 
+@app.route('/admin')
+def admin_dashboard():
+    if 'username' in session and 'role' in session and session.get('role') == 'admin':
+        buses = Bus.query.all()
+        flash('Login Successful', 'success')
+        return render_template('admin/dashboard.html', username=session['username'], buses=buses)
+    else:
+        flash('You are not a Admin', 'error')
+        return redirect('/login')
 
 
+@app.route('/add_bus' , methods = ['POST'])
+def add_bus():
+    if 'username' in session and 'role' in session and session.get('role') == 'admin':
+        bus_number = request.form['bus_number']
+        starting = request.form['start']
 
-@app.route('/bus')
-def bus():
-    if not verify() and session['role'] != 'bus':
-        return redirect(url_for('login'))
-    return render_template('bus.html')
+        obj = Bus(bus_number = bus_number , starting = starting)
+        db.session.add(obj)
+        db.session.commit()
+        flash('Bus added successfully' , 'success')
+        return redirect('/admin')
+    flash('Error while adding the bus' , 'error')
+    return redirect('/admin')
 
 @app.route('/view_bus')
 def view_bus():
-    if not verify() or session.get('role') == 'student':
+    if not verify() or session.get('role') != 'student':
         return redirect(url_for('login'))
     return render_template('viewbus.html')
 
@@ -103,8 +145,9 @@ def signup():
     if request.method == 'POST':
             user_name = request.form['username']
             passw = request.form['password']
+            role = request.form['role']
 
-            obj = Mytable(name = user_name , passw = passw , role = 'student')
+            obj = User(name = user_name , passw = passw , role = role)
             db.session.add(obj)
             db.session.commit()
     return render_template('signup.html')
@@ -116,26 +159,51 @@ def login():
     if request.method == 'POST':
         user = request.form['username']
         passw = request.form['password']
-        data = Mytable.query.all()
+        role = request.form['role']
+        data = User.query.all()
         cred = ([x.to_dict() for x in data])
         print(cred)
         for x in cred:
-            if x['name'] == user and x['passw'] == passw and x['role'] == 'student':
+            if x['name'] == user and x['passw'] == passw and x['role'] == 'student' and role == x['role']:
                 session['username'] = x['name']
                 session['role'] = x['role']
-                return redirect(url_for('dashboard'))
-            elif x['name'] == user and x['passw'] == passw and x['role'] == 'admin':
+                return redirect(url_for('student_dashboard'))
+
+            elif x['name'] == user and x['passw'] == passw and x['role'] == 'driver' and role == x['role']:
                 session['username'] = x['name']
                 session['role'] = x['role']
-                return 'admin'
+                return redirect(url_for('driver_dashboard'))
+
+            elif x['name'] == user and x['passw'] == passw and x['role'] == 'admin' and role == x['role']:
+                session['username'] = x['name']
+                session['role'] = x['role']
+                return redirect(url_for('admin_dashboard'))
+            else:
+                pass
         return redirect(url_for('view_bus'))
     elif request.method == 'GET':
         return render_template('login.html')
 
 
+@app.route('/logout' , methods=['POST' , 'GET'])
+def logout():
+    session.clear()
+    return '<h1>Logout Successfull</h1>'
 
 if __name__ == '__main__':
     """ app.app_context().push()"""
+    """with app.app_context():
+        db.create_all()"""
     with app.app_context():
         db.create_all()
+        # Create admin user if not exists
+        admin = User.query.filter_by(name='admin').first()
+        if not admin:
+            admin = User(
+                name='admin',
+                passw=generate_password_hash('admin'),
+                role='admin'
+            )
+            db.session.add(admin)
+            db.session.commit()
     app.run(host = '0.0.0.0' , debug=True , port = 5000)
