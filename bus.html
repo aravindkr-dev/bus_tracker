@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bus Management System</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+    }
+    
+    .header {
+      background-color: #FFC107;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .header-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .header-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .header-title {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .header h1 {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    
+    .admin-text {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    
+    .bus-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding: 2rem;
+    }
+    
+    .bus-card {
+      border: 2px solid #FFC107;
+      background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      height: 100%;
+      position: relative;
+    }
+    
+    .bus-card:hover {
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      transform: translateY(-5px);
+    }
+    
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 10;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    
+    .delete-btn:hover {
+      background-color: #c82333;
+      transform: scale(1.1);
+    }
+    
+    .bus-image {
+      width: 100%;
+      height: 160px;
+      object-fit: contain;
+      margin-bottom: 1rem;
+    }
+    
+    .bus-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #212529;
+      margin-bottom: 1rem;
+    }
+    
+    .bus-details {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .detail-section h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #212529;
+      margin-bottom: 0.25rem;
+    }
+    
+    .detail-section p {
+      font-size: 1rem;
+      color: #495057;
+    }
+    
+    .show-more-btn {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #F38507;
+      cursor: pointer;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 0;
+      margin-top: auto;
+      padding-top: 1rem;
+    }
+    
+    .show-more-btn:hover {
+      text-decoration: underline;
+    }
+    
+    .add-bus-card {
+      border: 2px dashed #dee2e6;
+      background-color: #f8f9fa;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      height: 100%;
+    }
+    
+    .add-bus-card:hover {
+      border-color: #FFC107;
+      background-color: #fff9e6;
+    }
+    
+    .add-icon {
+      background-color: #FFC107;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
+    
+    .add-icon i {
+      font-size: 2rem;
+      color: white;
+    }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-weight: 500;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+      .header {
+        padding: 1rem;
+      }
+      
+      .header h1 {
+        font-size: 1.5rem;
+      }
+      
+      .admin-text {
+        font-size: 1.2rem;
+      }
+      
+      .bus-grid {
+        padding: 1rem;
+      }
+      
+      .bus-title {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-logo">
+      <img src="https://static.vecteezy.com/system/resources/previews/009/292/244/non_2x/default-avatar-icon-of-social-media-user-vector.jpg" alt="Bus Logo">
+    </div>
+    <div class="header-title">
+      <div class="admin-text">Admin</div>
+      <h1>Available Buses</h1>
+    </div>
+  </header>
+  
+  <div class="bus-grid" id="bus-grid">
+    <!-- Bus cards will be inserted here by JavaScript -->
+  </div>
+  
+  <div id="toast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Bus deleted successfully!</span>
+  </div>
+  
+  <script>
+    // Sample bus data
+    let busData = [
+      {
+        id: '67',
+        route: {
+          from: 'Manivakam',
+          to: 'Ramapuram'
+        },
+        phoneNumber: '+91 6744373949',
+        imageUrl: '4B1A6D63-702A-4D4C-B676-7185F038E597.png'
+      },
+      {
+        id: '89',
+        route: {
+          from: 'Chennai',
+          to: 'Bengaluru'
+        },
+        phoneNumber: '+91 9876543210',
+        imageUrl: '4B1A6D63-702A-4D4C-B676-7185F038E597.png'
+      },
+      {
+        id: '42',
+        route: {
+          from: 'Adyar',
+          to: 'T Nagar'
+        },
+        phoneNumber: '+91 8765432109',
+        imageUrl: '4B1A6D63-702A-4D4C-B676-7185F038E597.png'
+      }
+    ];
+    
+    // Function to create a bus card
+    function createBusCard(bus) {
+      const card = document.createElement('div');
+      card.className = 'bus-card';
+      card.dataset.busId = bus.id;
+      
+      const cardHTML = `
+        <button class="delete-btn" aria-label="Delete bus" onclick="deleteBus('${bus.id}', event)">
+          <i class="fas fa-trash-alt"></i>
+        </button>
+        
+        <img 
+          src="${bus.imageUrl}" 
+          alt="Bus ${bus.id}" 
+          class="bus-image"
+        />
+        
+        <h2 class="bus-title">Bus No ${bus.id}</h2>
+        
+        <div class="bus-details">
+          <div class="detail-section">
+            <h3>Route</h3>
+            <p>${bus.route.from} to ${bus.route.to}</p>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Contact</h3>
+            <p>${bus.phoneNumber}</p>
+          </div>
+        </div>
+        
+        <button class="show-more-btn">Show More</button>
+      `;
+      
+      card.innerHTML = cardHTML;
+      
+      // Add event listener for the Show More button
+      const showMoreBtn = card.querySelector('.show-more-btn');
+      showMoreBtn.addEventListener('click', () => {
+        console.log(`Showing more details for bus ${bus.id}`);
+        alert(`Bus ${bus.id} Details\nRoute: ${bus.route.from} to ${bus.route.to}\nContact: ${bus.phoneNumber}`);
+      });
+      
+      // Add event listener for the Delete button
+      // Delete functionality is now handled directly by the onclick attribute
+      // No need for additional event listener here
+      
+      return card;
+    }
+    
+    // Function to create the add new bus card
+    function createAddBusCard() {
+      const card = document.createElement('div');
+      card.className = 'add-bus-card';
+      
+      const cardHTML = `
+        <div class="add-icon">
+          <i class="fas fa-plus"></i>
+        </div>
+      `;
+      
+      card.innerHTML = cardHTML;
+      
+      // Add event listener
+      card.addEventListener('click', () => {
+        console.log('Add new bus clicked');
+        alert('Add new bus form would appear here');
+      });
+      
+      return card;
+    }
+    
+    // Function to delete a bus
+    function deleteBus(busId, event) {
+      if (event) {
+        event.stopPropagation();
+      }
+      
+      if (confirm(`Are you sure you want to delete Bus No ${busId}?`)) {
+        // Remove the bus from the data array
+        busData = busData.filter(bus => bus.id !== busId);
+        
+        // Re-render the bus cards
+        renderBusCards();
+        
+        // Show toast notification
+        showToast(`Bus No ${busId} deleted successfully!`);
+        
+        console.log(`Bus ${busId} deleted. Remaining buses:`, busData.length);
+      }
+    }
+    
+    // Function to show toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      
+      toastMessage.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+    
+    // Render all bus cards
+    function renderBusCards() {
+      const gridContainer = document.getElementById('bus-grid');
+      gridContainer.innerHTML = '';
+      
+      // Add all bus cards
+      busData.forEach(bus => {
+        const busCard = createBusCard(bus);
+        gridContainer.appendChild(busCard);
+      });
+      
+      // Add the "add new" card
+      const addCard = createAddBusCard();
+      gridContainer.appendChild(addCard);
+    }
+    
+    // Initialize the app
+    window.addEventListener('DOMContentLoaded', renderBusCards);
+  </script>
+</body>
+</html>
