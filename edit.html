@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Bus Details</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    body {
+      background-color: #f8f9fa;
+    }
+    
+    .header {
+      background-color: #FFC107;
+      color: white;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    
+    .header-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .header-title {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .back-button {
+      font-size: 1.2rem;
+      color: white;
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .bus-image-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+      gap: 1rem;
+    }
+    
+    .bus-image {
+      width: 100%;
+      max-width: 600px;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    
+    .image-upload-btn {
+      padding: 0.5rem 1rem;
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .image-upload-btn:hover {
+      background-color: #5a6268;
+    }
+    
+    .form-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    
+    @media (min-width: 768px) {
+      .form-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .form-card {
+      background-color: #fff;
+      border-radius: 10px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 1px solid #dee2e6;
+    }
+    
+    .form-card h2 {
+      color: #212529;
+      font-size: 1.5rem;
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #FFC107;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 0.5rem;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      font-size: 1rem;
+      background-color: #f8f9fa;
+      color: #212529;
+      transition: border-color 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: #FFC107;
+      box-shadow: 0 0 0 0.25rem rgba(255, 193, 7, 0.2);
+    }
+    
+    .form-select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      font-size: 1rem;
+      background-color: #f8f9fa;
+      color: #212529;
+      cursor: pointer;
+    }
+    
+    .route-container {
+      grid-column: 1 / -1;
+    }
+    
+    .stops-container {
+      margin-top: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .stop-item {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      background-color: #f8f9fa;
+      padding: 0.75rem;
+      border-radius: 5px;
+      border: 1px solid #dee2e6;
+    }
+    
+    .stop-handle {
+      cursor: grab;
+      color: #6c757d;
+    }
+    
+    .stop-input {
+      flex: 1;
+    }
+    
+    .stop-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .add-stop-btn {
+      margin-top: 1rem;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .add-stop-btn:hover {
+      background-color: #218838;
+    }
+    
+    .remove-stop-btn {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    
+    .remove-stop-btn:hover {
+      background-color: #c82333;
+    }
+    
+    .trips-container {
+      margin-top: 1rem;
+    }
+    
+    .trip-item {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: center;
+    }
+    
+    .add-trip-btn {
+      margin-top: 1rem;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 500;
+    }
+    
+    .add-trip-btn:hover {
+      background-color: #218838;
+    }
+    
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 2rem;
+      grid-column: 1 / -1;
+    }
+    
+    .btn {
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background-color: #FFC107;
+      color: #212529;
+    }
+    
+    .btn-primary:hover {
+      background-color: #e0a800;
+    }
+    
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background-color: #5a6268;
+    }
+    
+    .btn-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+    
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+    
+    /* Custom file input styling */
+    .file-input-container {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .file-input {
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <button class="back-button" onclick="goBack()">
+      <i class="fas fa-arrow-left"></i>
+      Back
+    </button>
+    <div class="header-title">
+      <h1 id="edit-title">Edit Bus No 67</h1>
+    </div>
+  </header>
+  
+  <div class="main-content">
+    <form id="bus-edit-form" onsubmit="saveChanges(event)">
+      <div class="bus-image-container">
+        <img id="bus-image" src="4B1A6D63-702A-4D4C-B676-7185F038E597.png" alt="Bus" class="bus-image">
+        <div class="file-input-container">
+          <button type="button" class="image-upload-btn">
+            <i class="fas fa-camera"></i>
+            Change Image
+            <input type="file" class="file-input" id="bus-image-upload" accept="image/*">
+          </button>
+        </div>
+      </div>
+      
+      <div class="form-container">
+        <div class="form-card">
+          <h2>Basic Information</h2>
+          <div class="form-group">
+            <label for="bus-number" class="form-label">Bus Number</label>
+            <input type="text" class="form-control" id="bus-number" value="67" required>
+          </div>
+          <div class="form-group">
+            <label for="bus-from" class="form-label">Route From</label>
+            <input type="text" class="form-control" id="bus-from" value="Manivakam" required>
+          </div>
+          <div class="form-group">
+            <label for="bus-to" class="form-label">Route To</label>
+            <input type="text" class="form-control" id="bus-to" value="Ramapuram" required>
+          </div>
+          <div class="form-group">
+            <label for="current-trip" class="form-label">Current Trip</label>
+            <input type="number" class="form-control" id="current-trip" value="3" min="1" required>
+          </div>
+          <div class="form-group">
+            <label for="bus-status" class="form-label">Status</label>
+            <select class="form-select" id="bus-status" required>
+              <option value="In Service" selected>In Service</option>
+              <option value="Out of Service">Out of Service</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Breakdown">Breakdown</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-card">
+          <h2>Driver Details</h2>
+          <div class="form-group">
+            <label for="driver-name" class="form-label">Name</label>
+            <input type="text" class="form-control" id="driver-name" value="SenthilKumar" required>
+          </div>
+          <div class="form-group">
+            <label for="driver-phone" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="driver-phone" value="+91 6745342856" required>
+          </div>
+          <div class="form-group">
+            <label for="driver-experience" class="form-label">Experience</label>
+            <input type="text" class="form-control" id="driver-experience" value="5 years" required>
+          </div>
+          <div class="form-group">
+            <label for="driver-license" class="form-label">License</label>
+            <input type="text" class="form-control" id="driver-license" value="TN12345678" required>
+          </div>
+        </div>
+        
+        <div class="form-card route-container">
+          <h2>Route Stops</h2>
+          <p>Drag and drop to reorder stops</p>
+          <div id="stops-container" class="stops-container">
+            <!-- Stops will be added here dynamically -->
+          </div>
+          <button type="button" class="add-stop-btn" onclick="addStop()">
+            <i class="fas fa-plus"></i>
+            Add Stop
+          </button>
+        </div>
+        
+        <div class="form-card">
+          <h2>Time Table</h2>
+          <div id="trips-container" class="trips-container">
+            <!-- Trip rows will be added here dynamically -->
+          </div>
+          <button type="button" class="add-trip-btn" onclick="addTrip()">
+            <i class="fas fa-plus"></i>
+            Add Trip
+          </button>
+        </div>
+        
+        <div class="form-card">
+          <h2>Maintenance</h2>
+          <div class="form-group">
+            <label for="last-maintenance" class="form-label">Last Maintenance</label>
+            <input type="date" class="form-control" id="last-maintenance" value="2025-05-10" required>
+          </div>
+          <div class="form-group">
+            <label for="next-maintenance" class="form-label">Next Scheduled Maintenance</label>
+            <input type="date" class="form-control" id="next-maintenance" value="2025-06-10" required>
+          </div>
+          <div class="form-group">
+            <label for="fuel-status" class="form-label">Fuel Status (%)</label>
+            <input type="number" class="form-control" id="fuel-status" value="80" min="0" max="100" required>
+          </div>
+          <div class="form-group">
+            <label for="condition" class="form-label">Condition</label>
+            <select class="form-select" id="condition" required>
+              <option value="Excellent">Excellent</option>
+              <option value="Good" selected>Good</option>
+              <option value="Fair">Fair</option>
+              <option value="Poor">Poor</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i>
+            Save Changes
+          </button>
+          <button type="button" class="btn btn-secondary" onclick="goBack()">
+            <i class="fas fa-times"></i>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  
+  <script>
+
+
+    function goBack() {
+        window.location.href = `busdeatial.html?id=${busId}`;
+    }
+    // Sample bus data (in a real application, this would be fetched from a server)
+    const busesData = {
+      '67': {
+        id: '67',
+        route: {
+          from: 'Manivakam',
+          to: 'Ramapuram',
+          stops: ['MUDICHUR', 'MANIVAKAM', 'BHARATHI NAGAR', 'KRISHNA NAGAR', 'TAMBARAM', 'TAMBARAM SANITORIUM', 'CHROMPET', 'RAMAPURAM']
+        },
+        driver: {
+          name: 'SenthilKumar',
+          phoneNumber: '+91 6745342856',
+          experience: '5 years',
+          license: 'TN12345678'
+        },
+        currentTrip: 3,
+        status: 'In Service',
+        maintenance: {
+          last: '2025-05-10',
+          next: '2025-06-10',
+          fuel: '80',
+          condition: 'Good'
+        },
+        trips: [
+          { trip: 1, startTime: '06:00', endTime: '07:40', status: 'From Mudichur' },
+          { trip: 2, startTime: '13:30', endTime: '14:30', status: 'From College' },
+          { trip: 3, startTime: '16:20', endTime: '23:30', status: 'From College' }
+        ],
+        imageUrl: '4B1A6D63-702A-4D4C-B676-7185F038E597.png'
+      }
+    };
+    
+    // Get the bus ID from the URL parameter
+    function getUrlParameter(name) {
+      name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+      const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      const results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+    }
+    
+    const busId = getUrlParameter('id') || '67'; // Default to bus 67 if no ID is provided
+    let currentBusData = null;
+    
+    // Function to go back to the previous page
+    function goBack() {
+      window.location.href = `busdeatial.html?id=${busId}`;
+    }
+    
+    // Function to load bus data
+    function loadBusData() {
+      const bus = busesData[busId];
+      
+      if (bus) {
+        currentBusData = bus;
+        
+        // Update page title
+        document.title = `Edit Bus No ${bus.id}`;
+        document.getElementById('edit-title').textContent = `Edit Bus No ${bus.id}`;
+        
+        // Set basic information
+        document.getElementById('bus-number').value = bus.id;
+        document.getElementById('bus-from').value = bus.route.from;
+        document.getElementById('bus-to').value = bus.route.to;
+        document.getElementById('current-trip').value = bus.currentTrip;
+        document.getElementById('bus-status').value = bus.status;
+        
+        // Set driver details
+        document.getElementById('driver-name').value = bus.driver.name;
+        document.getElementById('driver-phone').value = bus.driver.phoneNumber;
+        document.getElementById('driver-experience').value = bus.driver.experience;
+        document.getElementById('driver-license').value = bus.driver.license;
+        
+        // Set maintenance details
+        document.getElementById('last-maintenance').value = bus.maintenance.last;
+        document.getElementById('next-maintenance').value = bus.maintenance.next;
+        document.getElementById('fuel-status').value = bus.maintenance.fuel;
+        document.getElementById('condition').value = bus.maintenance.condition;
+        
+        // Load route stops
+        loadStops(bus.route.stops);
+        
+        // Load trips
+        loadTrips(bus.trips);
+        
+        // Set bus image
+        document.getElementById('bus-image').src = bus.imageUrl;
+      } else {
+        alert(`Bus with ID ${busId} not found!`);
+        goBack();
+      }
+    }
+    
+    // Function to load route stops
+    function loadStops(stops) {
+      const stopsContainer = document.getElementById('stops-container');
+      stopsContainer.innerHTML = '';
+      
+      stops.forEach((stop, index) => {
+        const stopElement = createStopElement(stop, index);
+        stopsContainer.appendChild(stopElement);
+      });
+    }
+    
+    // Function to create a stop element
+    function createStopElement(stopName, index) {
+      const stopItem = document.createElement('div');
+      stopItem.className = 'stop-item';
+      stopItem.innerHTML = `
+        <div class="stop-handle">
+          <i class="fas fa-grip-lines"></i>
+        </div>
+        <input type="text" class="form-control stop-input" name="stops[]" value="${stopName}" required>
+        <div class="stop-buttons">
+          <button type="button" class="remove-stop-btn" onclick="removeStop(this)">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `;
+      return stopItem;
+    }
+    
+    // Function to add a new stop
+    function addStop() {
+      const stopsContainer = document.getElementById('stops-container');
+      const newStopElement = createStopElement('', stopsContainer.children.length);
+      stopsContainer.appendChild(newStopElement);
+    }
+    
+    // Function to remove a stop
+    function removeStop(button) {
+      const stopItem = button.closest('.stop-item');
+      if (document.querySelectorAll('.stop-item').length > 2) {
+        stopItem.remove();
+      } else {
+        alert('A route must have at least 2 stops!');
+      }
+    }
+    
+    // Function to load trips
+    function loadTrips(trips) {
+      const tripsContainer = document.getElementById('trips-container');
+      tripsContainer.innerHTML = '';
+      
+      trips.forEach((trip, index) => {
+        const tripElement = createTripElement(trip, index);
+        tripsContainer.appendChild(tripElement);
+      });
+    }
+    
+    // Function to create a trip element
+    function createTripElement(trip, index) {
+      const tripItem = document.createElement('div');
+      tripItem.className = 'trip-item';
+      tripItem.innerHTML = `
+        <div class="form-group">
+          <label class="form-label">Trip ${index + 1}</label>
+          <input type="time" class="form-control" name="trip-start[]" value="${trip.startTime}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">End Time</label>
+          <input type="time" class="form-control" name="trip-end[]" value="${trip.endTime}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <input type="text" class="form-control" name="trip-status[]" value="${trip.status}" required>
+        </div>
+        <button type="button" class="remove-stop-btn" onclick="removeTrip(this)">
+          <i class="fas fa-trash"></i>
+        </button>
+      `;
+      return tripItem;
+    }
+    
+    // Function to add a new trip
+    function addTrip() {
+      const tripsContainer = document.getElementById('trips-container');
+      const emptyTrip = { 
+        startTime: '08:00', 
+        endTime: '09:30', 
+        status: 'Scheduled' 
+      };
+      const newTripElement = createTripElement(emptyTrip, tripsContainer.children.length);
+      tripsContainer.appendChild(newTripElement);
+    }
+    
+    // Function to remove a trip
+    function removeTrip(button) {
+      const tripItem = button.closest('.trip-item');
+      if (document.querySelectorAll('.trip-item').length > 1) {
+        tripItem.remove();
+      } else {
+        alert('A bus must have at least 1 trip!');
+      }
+    }
+    
+    // Function to handle image upload
+    document.getElementById('bus-image-upload').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('bus-image').src = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+    
+    // Function to save changes
+    function saveChanges(event) {
+      event.preventDefault();
+      
+      // Gather all form data
+      const updatedBus = {
+        id: document.getElementById('bus-number').value,
+        route: {
+          from: document.getElementById('bus-from').value,
+          to: document.getElementById('bus-to').value,
+          stops: Array.from(document.querySelectorAll('.stop-input')).map(input => input.value)
+        },
+        driver: {
+          name: document.getElementById('driver-name').value,
+          phoneNumber: document.getElementById('driver-phone').value,
+          experience: document.getElementById('driver-experience').value,
+          license: document.getElementById('driver-license').value
+        },
+        currentTrip: parseInt(document.getElementById('current-trip').value, 10),
+        status: document.getElementById('bus-status').value,
+        maintenance: {
+          last: document.getElementById('last-maintenance').value,
+          next: document.getElementById('next-maintenance').value,
+          fuel: document.getElementById('fuel-status').value,
+          condition: document.getElementById('condition').value
+        },
+        trips: Array.from(document.querySelectorAll('.trip-item')).map((item, index) => {
+          const inputs = item.querySelectorAll('input');
+          return {
+            trip: index + 1,
+            startTime: inputs[0].value,
+            endTime: inputs[1].value,
+            status: inputs[2].value
+          };
+        }),
+        imageUrl: document.getElementById('bus-image').src
+      };
+      
+      // In a real application, this would be sent to the server
+      console.log('Updated bus data:', updatedBus);
+      
+      // Update the local data (for demonstration purposes)
+      busesData[busId] = updatedBus;
+      
+      // Show success message
+      alert('Bus details updated successfully!');
+      
+      // Redirect back to the details page
+      goBack();
+    }
+    
+    // Make stops container sortable with drag and drop
+    function setupSortableStops() {
+      const stopsContainer = document.getElementById('stops-container');
+      let draggedItem = null;
+      
+      // Add event listeners for drag and drop
+      stopsContainer.addEventListener('dragstart', function(e) {
+        if (e.target.classList.contains('stop-item')) {
+          draggedItem = e.target;
+          setTimeout(() => {
+            e.target.style.opacity = '0.5';
+          }, 0);
+        }
+      });
+      
+      stopsContainer.addEventListener('dragend', function(e) {
+        if (e.target.classList.contains('stop-item')) {
+          e.target.style.opacity = '1';
+        }
+      });
+      
+      stopsContainer.addEventListener('dragover', function(e) {
+        e.preventDefault();
+      });
+      
+      stopsContainer.addEventListener('drop', function(e) {
+        e.preventDefault();
+        if (draggedItem) {
+          const closest = document.elementFromPoint(e.clientX, e.clientY).closest('.stop-item');
+          if (closest && closest !== draggedItem) {
+            const rect = closest.getBoundingClientRect();
+            const middle = (rect.top + rect.bottom) / 2;
+            
+            if (e.clientY < middle) {
+              stopsContainer.insertBefore(draggedItem, closest);
+            } else {
+              stopsContainer.insertBefore(draggedItem, closest.nextSibling);
+            }
+          }
+        }
+      });
+      
+      // Make stop items draggable
+      document.querySelectorAll('.stop-item').forEach(item => {
+        item.setAttribute('draggable', 'true');
+        
+        // Add drag handle event listeners
+        const handle = item.querySelector('.stop-handle');
+        handle.addEventListener('mousedown', function() {
+          item.draggable = true;
+        });
+        
+        item.addEventListener('mouseup', function() {
+          item.draggable = false;
+        });
+      });
+    }
+    
+    // Initialize the page
+    window.addEventListener('DOMContentLoaded', function() {
+      loadBusData();
+      
+      // Add dragability to stops after they're loaded
+      setTimeout(setupSortableStops, 100);
+    });
+  </script>
+</body>
+</html>
